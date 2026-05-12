@@ -1,0 +1,97 @@
+{
+  "serverInfo": {
+    "name": "falsifylab-alpha",
+    "version": "0.1.0"
+  },
+  "authentication": {
+    "required": false,
+    "schemes": []
+  },
+  "tools": [
+    {
+      "name": "top_yield_farms",
+      "description": "Latest 24h top DeFi yield farm picks with realistic APY (emissions stripped), risk notes, TVL, protocol. Sourced from FalsifyLab daily aggregator.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {"type": "integer", "default": 10, "description": "max results (1-50)"},
+          "min_apy": {"type": "number", "default": 0, "description": "filter floor in pct"},
+          "asset": {"type": "string", "description": "filter by asset symbol (BTC, ETH, SOL, etc.)"}
+        }
+      }
+    },
+    {
+      "name": "hl_vault_leaderboard",
+      "description": "Hyperliquid vault leaderboard with NAV, 30d return, max drawdown, follower count, composite score.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {"type": "integer", "default": 10},
+          "sort_by": {"type": "string", "enum": ["score", "tvl", "return_30d", "followers"], "default": "score"}
+        }
+      }
+    },
+    {
+      "name": "insider_buy_clusters",
+      "description": "Form 4 insider buy clusters (3+ insiders bought same ticker in 24-48h). Bullish signal.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "window_hours": {"type": "integer", "default": 24},
+          "min_insiders": {"type": "integer", "default": 3}
+        }
+      }
+    },
+    {
+      "name": "sec8k_material_today",
+      "description": "Material SEC 8-K filings today filtered by item code: 2.02 (earnings), 5.02 (officer change), 2.01 (M&A), 3.02 (dilution), 4.02 (restatement), 3.01 (delisting).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "items": {"type": "array", "items": {"type": "string"}, "description": "item codes (e.g. ['2.02','5.02'])"},
+          "ticker": {"type": "string", "description": "filter by ticker symbol"}
+        }
+      }
+    },
+    {
+      "name": "macro_tape",
+      "description": "Live US macro snapshot: SPX, NDX, RUT, VIX, UST 2y/10y, DXY, GOLD, WTI, BTC, ETH. Last price + 1d/5d % change.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "symbols": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    {
+      "name": "etf_flow_today",
+      "description": "US-listed spot crypto ETF aggregate flows today. BTC + ETH net flow, 5d streak, cumulative AUM.",
+      "inputSchema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "active_airdrop_farms",
+      "description": "Active airdrop / points-farming opportunities detected from DefiLlama yield gaps. Includes realistic APY, TVL, capital required, confidence score.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {"type": "integer", "default": 10},
+          "min_apy": {"type": "number", "default": 0},
+          "min_tvl_usd": {"type": "number", "default": 0},
+          "chain": {"type": "string", "description": "filter (ethereum, base, arbitrum, etc.)"}
+        }
+      }
+    },
+    {
+      "name": "polymarket_whale_positions",
+      "description": "Top Polymarket whale wallets and their current active positions sized >$10k. Copy-trade reference.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "min_position_usd": {"type": "integer", "default": 10000}
+        }
+      }
+    }
+  ],
+  "resources": [],
+  "prompts": []
+}
