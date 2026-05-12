@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir falsifylab-alpha-mcp==0.1.2
 
 ENV PYTHONUNBUFFERED=1
 
-ENTRYPOINT ["falsifylab-alpha-mcp"]
+CMD ["falsifylab-alpha-mcp"]
