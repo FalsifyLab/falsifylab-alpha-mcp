@@ -1,5 +1,7 @@
 # falsifylab-alpha-mcp
 
+<!-- mcp-name: io.github.FalsifyLab/falsifylab-alpha-mcp -->
+
 MCP server surfacing FalsifyLab daily alpha to Claude Code / Cursor / any MCP-compatible client.
 
 ## Tools

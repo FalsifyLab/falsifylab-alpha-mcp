@@ -1,6 +1,6 @@
 [project]
 name = "falsifylab-alpha-mcp"
-version = "0.1.1"
+version = "0.1.2"
 description = "MCP server surfacing FalsifyLab daily alpha (yield farms, HL vaults, insider trades, SEC 8-Ks)"
 readme = "README.md"
 requires-python = ">=3.10"

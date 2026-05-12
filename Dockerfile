@@ -1,0 +1,9 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir falsifylab-alpha-mcp==0.1.2
+
+ENV PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["falsifylab-alpha-mcp"]
