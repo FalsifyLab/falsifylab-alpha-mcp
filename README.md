@@ -47,6 +47,12 @@ Or in `.mcp.json`:
 
 Get a key at [falsifylab.com/pro](https://falsifylab.com/pro).
 
+## Source
+
+- GitHub: https://github.com/FalsifyLab/falsifylab-alpha-mcp
+- Issues: https://github.com/FalsifyLab/falsifylab-alpha-mcp/issues
+- PyPI: https://pypi.org/project/falsifylab-alpha-mcp/
+
 ## License
 
 MIT

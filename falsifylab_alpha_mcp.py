@@ -28,7 +28,7 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 API_BASE = os.environ.get("FL_API_BASE", "https://api.falsifylab.com")
 API_KEY = os.environ.get("FL_API_KEY", "")
 USER_AGENT = f"falsifylab-alpha-mcp/{VERSION}"
