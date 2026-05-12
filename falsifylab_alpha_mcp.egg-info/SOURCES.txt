@@ -1,0 +1,8 @@
+README.md
+falsifylab_alpha_mcp.py
+pyproject.toml
+falsifylab_alpha_mcp.egg-info/PKG-INFO
+falsifylab_alpha_mcp.egg-info/SOURCES.txt
+falsifylab_alpha_mcp.egg-info/dependency_links.txt
+falsifylab_alpha_mcp.egg-info/entry_points.txt
+falsifylab_alpha_mcp.egg-info/top_level.txt

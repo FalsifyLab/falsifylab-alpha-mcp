@@ -1,0 +1,2 @@
+[console_scripts]
+falsifylab-alpha-mcp = falsifylab_alpha_mcp:main
