@@ -205,6 +205,32 @@ TOOLS = [
             },
         },
     },
+    {
+        "name": "onchain_smart_wallets",
+        "description": "Top-scored on-chain wallets surfaced by FalsifyLab's "
+                       "live Solana copy-trading bot. Composite score from 5 "
+                       "weighted sub-scores (profitability, consistency, risk, "
+                       "copyability, behavior_quality) calibrated to actual "
+                       "copy-trade PnL correlations. Consistency + behavior "
+                       "weighted highest (rho +0.76 and +0.755 to PnL). "
+                       "Returns wallet address, status (MONITORED/CANDIDATE/"
+                       "DEMOTED), provider, score breakdown, scan window. "
+                       "Production data from a real copy-trading bot, not "
+                       "speculative analytics.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "min_score": {"type": "number", "default": 0.5,
+                                "description": "composite score floor (0.0-1.0)"},
+                "status": {"type": "string",
+                            "enum": ["MONITORED", "CANDIDATE", "ACTIVE", "DEMOTED"],
+                            "description": "filter by wallet status"},
+                "chain": {"type": "string",
+                           "description": "filter by chain (solana, ethereum, etc.)"},
+                "limit": {"type": "integer", "default": 10},
+            },
+        },
+    },
 ]
 
 
@@ -229,6 +255,8 @@ def call_tool(name: str, args: dict) -> dict:
         return _api_get("/api/polymarket/whales", args)
     if name == "confluence_today":
         return _api_get("/api/confluence", args)
+    if name == "onchain_smart_wallets":
+        return _api_get("/api/onchain/wallets", args)
     return {"error": f"unknown tool: {name}"}
 
 

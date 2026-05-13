@@ -1,32 +1,51 @@
 Metadata-Version: 2.4
 Name: falsifylab-alpha-mcp
-Version: 0.1.0
-Summary: MCP server surfacing FalsifyLab daily alpha (yield farms, HL vaults, insider trades, SEC 8-Ks)
+Version: 0.1.5
+Summary: MCP data layer for AI-assisted market research: 10 finance tools for AI agents covering DeFi yield, Hyperliquid vaults, SEC Form 4 insider clusters, 8-K material filings, macro tape, US spot ETF flows, airdrop farms, Polymarket whales, confluence_today cross-source signal alignment, and onchain_smart_wallets (live Solana copy-trade bot score data). Free tier requires no signup. Pro $19/mo for real-time.
 Author-email: FalsifyLab <ops@falsifylab.com>
 License: MIT
-Project-URL: Homepage, https://falsifylab.com
-Project-URL: Repository, https://github.com/falsifylab/falsifylab-alpha-mcp
-Keywords: mcp,claude,crypto,defi,trading,alpha
-Classifier: Development Status :: 3 - Alpha
+Project-URL: Homepage, https://falsifylab.com/pro
+Project-URL: Repository, https://github.com/FalsifyLab/falsifylab-alpha-mcp
+Project-URL: Issues, https://github.com/FalsifyLab/falsifylab-alpha-mcp/issues
+Project-URL: Documentation, https://github.com/FalsifyLab/falsifylab-alpha-mcp#readme
+Project-URL: Live demo, https://falsifylab.com/demo
+Keywords: mcp,model-context-protocol,ai-agent,claude,cursor,cline,windsurf,finance,trading,quant,research,crypto,defi,yield,airdrop,sec,edgar,form-4,insider-trading,8-k,etf,etf-flows,polymarket,prediction-markets,macro,spx,vix,hyperliquid,data-api,fintech
+Classifier: Development Status :: 4 - Beta
 Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Financial and Insurance Industry
 Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Office/Business :: Financial :: Investment
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development :: Libraries
 Requires-Python: >=3.10
 Description-Content-Type: text/markdown
 
 # falsifylab-alpha-mcp
 
-MCP server surfacing FalsifyLab daily alpha to Claude Code / Cursor / any MCP-compatible client.
+<!-- mcp-name: io.github.FalsifyLab/falsifylab-alpha-mcp -->
 
-## Tools
+[![smithery badge](https://smithery.ai/badge/falsifylab/falsifylab-alpha-mcp)](https://smithery.ai/servers/falsifylab/falsifylab-alpha-mcp)
+
+MCP data layer for AI agents doing public-market research. Drops into Claude Code, Cursor, Cline, Windsurf, or any MCP-compatible client.
+
+## Tools (9 — 8 data feeds + 1 confluence)
 
 - `top_yield_farms` — last 24h DeFi yield picks with realistic APY (emissions stripped)
 - `hl_vault_leaderboard` — Hyperliquid vault leaderboard (NAV, 30d return, max DD, score)
-- `insider_buy_clusters` — Form 4 cluster buys (3+ insiders bought same ticker)
+- `insider_buy_clusters` — SEC Form 4 cluster buys (3+ insiders bought same ticker)
 - `sec8k_material_today` — material 8-K filings filtered by item code
 - `macro_tape` — SPX/NDX/VIX/UST yields/DXY/GOLD/WTI/BTC/ETH live snapshot
 - `etf_flow_today` — US spot BTC + ETH ETF net flows
+- `active_airdrop_farms` — DefiLlama yield-gap airdrop detection
 - `polymarket_whale_positions` — top whale wallets + active positions
+- `confluence_today` — cross-source signal alignment (the differentiator)
+
+Not a signal service. Not investment advice. Public market data with light enrichment. Backtest before acting.
 
 ## Install
 
@@ -62,6 +81,12 @@ Or in `.mcp.json`:
 - **Pro $19/mo** (API key): real-time, 90-day history, all filters, no rate limit
 
 Get a key at [falsifylab.com/pro](https://falsifylab.com/pro).
+
+## Source
+
+- GitHub: https://github.com/FalsifyLab/falsifylab-alpha-mcp
+- Issues: https://github.com/FalsifyLab/falsifylab-alpha-mcp/issues
+- PyPI: https://pypi.org/project/falsifylab-alpha-mcp/
 
 ## License
 
