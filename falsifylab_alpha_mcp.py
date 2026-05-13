@@ -182,6 +182,29 @@ TOOLS = [
             },
         },
     },
+    {
+        "name": "confluence_today",
+        "description": "Cross-source confluence: tickers/assets where 2+ "
+                       "FalsifyLab signals align in the last 24h. Stacks "
+                       "insider Form 4 clusters, material 8-K filings, ETF "
+                       "flows, DeFi yields, airdrop activity, HL vault "
+                       "concentration, and Polymarket whale positions. "
+                       "Higher signal_count = more conviction. The Pro-tier "
+                       "differentiator: nobody else stacks these in one call.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "min_signals": {"type": "integer", "default": 2,
+                                  "description": "min # of signals that must agree per asset"},
+                "kind": {"type": "string",
+                          "enum": ["equity", "crypto", "all"],
+                          "default": "all",
+                          "description": "limit to equity (Form 4 + 8-K + ETF) "
+                                         "or crypto (yield + airdrop + HL vault + Polymarket) signals"},
+                "limit": {"type": "integer", "default": 10},
+            },
+        },
+    },
 ]
 
 
@@ -204,6 +227,8 @@ def call_tool(name: str, args: dict) -> dict:
         return _api_get("/api/airdrops", args)
     if name == "polymarket_whale_positions":
         return _api_get("/api/polymarket/whales", args)
+    if name == "confluence_today":
+        return _api_get("/api/confluence", args)
     return {"error": f"unknown tool: {name}"}
 
 
