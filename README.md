@@ -4,17 +4,21 @@
 
 [![smithery badge](https://smithery.ai/badge/falsifylab/falsifylab-alpha-mcp)](https://smithery.ai/servers/falsifylab/falsifylab-alpha-mcp)
 
-MCP server surfacing FalsifyLab daily alpha to Claude Code / Cursor / any MCP-compatible client.
+MCP data layer for AI agents doing public-market research. Drops into Claude Code, Cursor, Cline, Windsurf, or any MCP-compatible client.
 
-## Tools
+## Tools (9 — 8 data feeds + 1 confluence)
 
 - `top_yield_farms` — last 24h DeFi yield picks with realistic APY (emissions stripped)
 - `hl_vault_leaderboard` — Hyperliquid vault leaderboard (NAV, 30d return, max DD, score)
-- `insider_buy_clusters` — Form 4 cluster buys (3+ insiders bought same ticker)
+- `insider_buy_clusters` — SEC Form 4 cluster buys (3+ insiders bought same ticker)
 - `sec8k_material_today` — material 8-K filings filtered by item code
 - `macro_tape` — SPX/NDX/VIX/UST yields/DXY/GOLD/WTI/BTC/ETH live snapshot
 - `etf_flow_today` — US spot BTC + ETH ETF net flows
+- `active_airdrop_farms` — DefiLlama yield-gap airdrop detection
 - `polymarket_whale_positions` — top whale wallets + active positions
+- `confluence_today` — cross-source signal alignment (the differentiator)
+
+Not a signal service. Not investment advice. Public market data with light enrichment. Backtest before acting.
 
 ## Install
 
