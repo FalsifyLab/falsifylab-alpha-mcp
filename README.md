@@ -2,7 +2,7 @@
 
 <!-- mcp-name: io.github.FalsifyLab/falsifylab-alpha-mcp -->
 
-[![smithery badge](https://smithery.ai/badge/@falsifylab/falsifylab-alpha-mcp)](https://smithery.ai/server/falsifylab/falsifylab-alpha-mcp)
+[![smithery badge](https://smithery.ai/badge/falsifylab/falsifylab-alpha-mcp)](https://smithery.ai/servers/falsifylab/falsifylab-alpha-mcp)
 
 MCP server surfacing FalsifyLab daily alpha to Claude Code / Cursor / any MCP-compatible client.
 
