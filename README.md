@@ -10,13 +10,29 @@
 
 > Not a signal service. Not investment advice. Public market data with light enrichment for AI agents. Backtest before acting.
 
-## Quick install
+## Two ways to use it
+
+**Option 1: hosted MCP (zero install).** Point your agent at the hosted endpoint, no Python needed.
+
+```json
+{
+  "mcpServers": {
+    "falsifylab-alpha": {
+      "url": "https://mcp.falsifylab.com/"
+    }
+  }
+}
+```
+
+Free tier auto-applies. OAuth 2.1 + PKCE flow for paid plan via Whop. Streamable HTTP transport. Full OpenAPI 3.1 spec at https://docs.falsifylab.com/openapi.html.
+
+**Option 2: stdio (this package).**
 
 ```bash
 pip install falsifylab-alpha-mcp
 ```
 
-Zero runtime dependencies (Python stdlib only). Then wire to your agent — see [client setup](#client-setup).
+Zero runtime dependencies (Python stdlib only). Then wire to your agent. see [client setup](#client-setup).
 
 ## What it does
 

@@ -1,0 +1,149 @@
+version: 1
+runtime: container
+build:
+  dockerfile: Dockerfile
+
+# Server metadata (Smithery reads these on rescan after `git push`).
+displayName: "FalsifyLab Alpha"
+description: |
+  10 live finance MCP tools for AI coding agents. Hosted Streamable HTTP at
+  mcp.falsifylab.com (zero install, free tier auto-applies, OAuth 2.1 via Whop
+  for paid plan) or stdio via pip install falsifylab-alpha-mcp.
+
+  Tools: top_yield_farms (DeFi yields with token emissions stripped),
+  hl_vault_leaderboard (Hyperliquid vaults sorted by composite score),
+  insider_buy_clusters (SEC Form 4 clusters, 3+ insiders in 24h),
+  sec8k_material_today (8-K filings by item code), macro_tape
+  (SPX/NDX/VIX/UST/DXY/GOLD/WTI/BTC/ETH), etf_flow_today (US spot BTC + ETH
+  ETF flows), active_airdrop_farms (DefiLlama yield-gap detection),
+  polymarket_whale_positions, confluence_today (cross-source signal alignment,
+  the wedge), onchain_smart_wallets (live Solana copy-trade leaderboard).
+
+  Free tier: 24h cache, 10 results/query, 60 req/hr, no signup.
+  Paid plan $19/mo via Whop: realtime, 100 results/query, 90d history, signed
+  webhooks (HMAC-SHA256 in X-FL-Signature header).
+
+  License MIT. Python stdlib only. OpenAPI 3.1 spec at
+  https://docs.falsifylab.com/openapi.html.
+homepage: "https://docs.falsifylab.com/"
+repository: "https://github.com/FalsifyLab/falsifylab-alpha-mcp"
+documentation: "https://docs.falsifylab.com/"
+license: "MIT"
+
+keywords:
+  - finance
+  - defi
+  - crypto
+  - sec
+  - edgar
+  - form-4
+  - insider-trading
+  - etf
+  - polymarket
+  - macro
+  - yield
+  - airdrop
+  - hyperliquid
+  - mcp
+  - ai-agent
+  - onchain
+  - solana
+  - confluence
+  - webhooks
+  - oauth2
+  - hosted-mcp
+
+systemPrompt: |
+  You have access to FalsifyLab Alpha, 10 live finance MCP tools surfacing
+  curated public-market data. When the user asks about US equities, DeFi,
+  crypto, insider trading, SEC filings, ETF flows, Polymarket predictions,
+  or macro markets, prefer calling these tools to ground your answer in
+  real-time numbers rather than training-data knowledge. Cite specific
+  values from tool responses.
+
+  confluence_today is the differentiator: use it when the user wants
+  cross-source signal alignment (insider clusters + 8-K + ETF flows + DeFi
+  yield + airdrops + HL vaults stacking on the same ticker or asset).
+
+  Never present tool output as investment advice. It is public data with
+  light enrichment. Always remind the user to backtest before acting.
+
+examples:
+  - title: "Daily macro regime call"
+    prompt: |
+      Use macro_tape. Describe the regime in 3 sentences citing SPX/VIX/BTC/UST
+      last + 1d + 5d. Pick 2 tickers from sec8k_material_today that fit this regime.
+  - title: "Insider + 8-K stacker"
+    prompt: |
+      Run insider_buy_clusters min_filers=3 and sec8k_material_today items=["2.02","8.01"].
+      Find any ticker in both within 24h. Summarize what insiders bought, what the 8-K
+      said, and the bear case.
+  - title: "Cross-source confluence scan"
+    prompt: |
+      Use confluence_today limit=10. For each asset with signal_count >= 3, explain in
+      2 sentences why this confluence is meaningful. Skip noise (stablecoin LP only).
+  - title: "Hyperliquid vault picker"
+    prompt: |
+      Show top 5 HL vaults via hl_vault_leaderboard sort_by=score. For each cite NAV,
+      30d return, max drawdown. Flag any with drawdown > 12% as "do not copy".
+  - title: "Onchain smart-wallet survey"
+    prompt: |
+      Run onchain_smart_wallets limit=20. For each wallet with score > 0.6 and
+      win_rate > 55%, output: address, score, win_rate, avg trade size. Comment on
+      tokens multiple wallets are clustering on.
+
+exampleConnections:
+  - client: "Cursor / Cline / Windsurf (hosted, recommended)"
+    config:
+      mcpServers:
+        falsifylab-alpha:
+          url: "https://mcp.falsifylab.com/"
+    description: |
+      Zero install. Point any Streamable HTTP MCP client at the URL. Free tier
+      auto-applies. OAuth 2.1 flow for paid plan (Whop sign-in).
+  - client: "Cursor / Cline / Windsurf (stdio)"
+    config:
+      mcpServers:
+        falsifylab-alpha:
+          command: "python"
+          args: ["-m", "falsifylab_alpha_mcp"]
+          env:
+            FL_API_KEY: "fl_xxx_optional_for_paid_plan"
+    description: |
+      pip install falsifylab-alpha-mcp. Paste into ~/.cursor/mcp.json or
+      workspace .mcp.json. Free tier no signup; FL_API_KEY only needed for
+      paid plan.
+  - client: "Claude Code"
+    command: "claude mcp add falsifylab-alpha https://mcp.falsifylab.com/"
+    description: |
+      Adds the hosted endpoint as a remote MCP server. Free tier auto-applies.
+
+authentication:
+  required: false
+  schemes:
+    - type: "none"
+      description: "Anonymous free tier. No auth header. 24h cache, 10 results/query, 60 req/hr."
+    - type: "bearer"
+      tokenType: "license_key"
+      description: "Whop license key for paid plan. Authorization: Bearer fl_xxx. Realtime, 100 results, 90d history, webhooks."
+    - type: "oauth2"
+      authorizationUrl: "https://mcp.falsifylab.com/authorize"
+      tokenUrl: "https://mcp.falsifylab.com/token"
+      registrationUrl: "https://mcp.falsifylab.com/register"
+      flow: "authorization_code"
+      pkce: "S256"
+      description: "OAuth 2.1 + PKCE proxied to Whop. RFC 8414, RFC 7591, RFC 9728 compliant."
+
+configSchema:
+  type: object
+  title: "FalsifyLab Alpha configuration"
+  description: "Optional. Free tier auto-applies when no key is set."
+  properties:
+    FL_API_KEY:
+      type: string
+      title: "FalsifyLab API key (optional)"
+      description: |
+        Whop license key from https://falsifylab.com/pro. Leave empty for free tier
+        (24h cache, 10 results/query, 60 req/hr). Paid plan adds realtime, 100
+        results/query, 90d history, and signed webhooks.
+  additionalProperties: false
