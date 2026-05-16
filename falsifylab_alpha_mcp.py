@@ -4,11 +4,13 @@ FalsifyLab daily alpha (yield farms, HL vaults, insider trades, SEC 8-Ks).
 
 Architecture:
   - MCP server (this file) runs LOCALLY on user's machine via stdio
-  - Server calls backend at https://api.falsifylab.com (Cloudflare Worker)
+  - Server calls backend at https://falsifylab.com/api/* (Cloudflare-fronted)
   - Backend serves cached data: latest_yields, hl_vaults, insider_buys,
     sec8k_today, macro_tape, etc.
   - Free tier: read-only access to last-24h aggregated cached data
   - Paid tier ($19/mo): real-time + extended history + filters
+  - Alternative: point any MCP client directly at https://mcp.falsifylab.com/mcp
+    for the hosted MCP transport (no pypi install required).
 
 Install (end user):
   pip install falsifylab-alpha-mcp
@@ -28,8 +30,8 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-VERSION = "0.2.0"
-API_BASE = os.environ.get("FL_API_BASE", "https://api.falsifylab.com")
+VERSION = "0.2.1"
+API_BASE = os.environ.get("FL_API_BASE", "https://falsifylab.com")
 API_KEY = os.environ.get("FL_API_KEY", "")
 USER_AGENT = f"falsifylab-alpha-mcp/{VERSION}"
 
