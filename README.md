@@ -4,7 +4,11 @@
 
 [![smithery badge](https://smithery.ai/badge/falsifylab/falsifylab-alpha-mcp)](https://smithery.ai/servers/falsifylab/falsifylab-alpha-mcp)
 [![PyPI](https://img.shields.io/pypi/v/falsifylab-alpha-mcp.svg)](https://pypi.org/project/falsifylab-alpha-mcp/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/falsifylab-alpha-mcp.svg)](https://pypi.org/project/falsifylab-alpha-mcp/)
+[![Python](https://img.shields.io/pypi/pyversions/falsifylab-alpha-mcp.svg)](https://pypi.org/project/falsifylab-alpha-mcp/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![MCP Protocol](https://img.shields.io/badge/MCP-2024--11--05-success.svg)](https://modelcontextprotocol.io/)
+[![Glama Score](https://glama.ai/mcp/servers/FalsifyLab/falsifylab-alpha-mcp/badge)](https://glama.ai/mcp/servers/FalsifyLab/falsifylab-alpha-mcp)
 
 **MCP data layer for AI-assisted market research.** 10 live finance tools that drop into Claude Code, Cursor, Cline, Windsurf, or any MCP-compatible client. Free tier requires no signup.
 
