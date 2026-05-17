@@ -1,0 +1,34 @@
+name: Feature request
+description: New tool, new endpoint, new behavior
+title: "[feat] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: What are you trying to do
+      description: "Describe the agent workflow or use case, not the implementation"
+    validations:
+      required: true
+  - type: textarea
+    id: signal
+    attributes:
+      label: What public data source provides the signal
+      description: "FL only uses free or pay-per-call public APIs. List the source."
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example tool call + response shape you would want
+      render: json
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Which tier would this fit
+      options:
+        - Free
+        - Pro $19/mo
+        - Pro Plus $49/mo
+        - Teams $199/mo
+        - new product
