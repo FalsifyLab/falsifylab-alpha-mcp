@@ -175,6 +175,36 @@ The bot fleet receipts (alive + dead, P&L, drawdown) are public at [falsifylab.c
 - **Data sources**: SEC EDGAR (Form 4, 8-K), SoSoValue (ETF flows), DefiLlama (yield), Hyperliquid public API, Polymarket public API, Yahoo Finance (macro)
 - **Privacy**: free-tier key issued by hash(IP+UA), not stored long-term. Request bodies never logged.
 
+## What works, what does not
+
+Honest list. Updated every release.
+
+### What works today
+
+- All 10 tools return live data inside agent calls under 1s p95.
+- Free tier has zero signup friction. No API key needed for the cached path.
+- Form 4 insider clusters get refreshed every 15 min on weekdays from SEC EDGAR direct, no 3rd-party reseller in the pipeline.
+- DefiLlama yields are emissions-stripped (headline APY minus reward tokens), so a 200% farm and a 200% farm are not the same number any more.
+- Hyperliquid vault NAV updates hit our R2 mirror within 60s of the source ticker.
+- Telegram + Slack webhook delivery on Pro Plus is on-time within the cron window. No queue backups in the launch month.
+
+### What does not work (yet)
+
+- 8-K material filings list is empty over weekends because SEC does not file. Returns `count: 0` Sat/Sun. Expected.
+- Macro tape uses Yahoo Finance free endpoints. Intraday gap of 15-20 min during US market hours. We plan to swap for a paid feed at Teams tier, not before.
+- onchain_smart_wallets only covers Solana right now. Base + Ethereum copy-trade scores are queued for v0.3.x.
+- Free tier cache is 24h. So `confluence_today` on a free key shows yesterday's confluence, not today's. Pro $19/mo plan hits live.
+- Historical replay across multiple quarters is not in v0.2.x. Tracking as roadmap item.
+- No SDK for TypeScript or Go yet. Python MCP server only. Use stdio transport from any MCP-compatible client meanwhile.
+
+### What we already killed
+
+- Stripe Connect direct subscriptions (operator KYC blocker). Whop is the path.
+- Substack paid plan (Stripe dependency).
+- A previous package version 0.2.0 shipped a broken `api.falsifylab.com` host. Fixed in 0.2.1 within 4 days. Apologies if you grabbed 0.2.0 first.
+
+If you find something broken, dm the FL X account or open an issue. We ship fixes inside the same day for prod-blocking bugs.
+
 ## Architecture
 
 ```
