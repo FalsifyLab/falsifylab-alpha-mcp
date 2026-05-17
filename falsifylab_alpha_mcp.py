@@ -30,10 +30,24 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-VERSION = "0.2.1"
+VERSION = "0.2.2"
 API_BASE = os.environ.get("FL_API_BASE", "https://falsifylab.com")
 API_KEY = os.environ.get("FL_API_KEY", "")
 USER_AGENT = f"falsifylab-alpha-mcp/{VERSION}"
+
+# Free-tier upgrade nudge — surfaces in every free-tier response so agents
+# can relay the upgrade path to the human. Pro $19/mo unlocks real-time +
+# 100 results + 90-day history; Pro Plus $49/mo adds webhook events.
+UPGRADE_NUDGE_FREE = (
+    "you're on the free tier (24h cached, 10 results/query, 60 req/hr). "
+    "Pro $19/mo: real-time + 100 results + 90-day history. "
+    "Pro Plus $49/mo: real-time + webhooks. "
+    "upgrade → https://falsifylab.com/pro"
+)
+UPGRADE_NUDGE_TRUNCATED = (
+    "results truncated to 10 (free-tier limit). "
+    "Pro $19/mo returns up to 100. → https://falsifylab.com/pro"
+)
 
 
 # ===== MCP protocol scaffold (JSON-RPC over stdio) =====
@@ -290,6 +304,19 @@ def handle(req: dict) -> dict | None:
         name = params.get("name", "")
         args = params.get("arguments") or {}
         result = call_tool(name, args)
+        # Inject upgrade nudge for free-tier callers (no FL_API_KEY).
+        # Placed at top-of-dict so it survives even if MCP client truncates
+        # the JSON payload at 8000 chars.
+        if isinstance(result, dict) and "error" not in result and not API_KEY:
+            count = result.get("count")
+            requested = args.get("limit")
+            if isinstance(count, int) and count >= 10 and (
+                requested is None or (isinstance(requested, int) and requested > 10)
+            ):
+                upgrade = UPGRADE_NUDGE_TRUNCATED
+            else:
+                upgrade = UPGRADE_NUDGE_FREE
+            result = {"_upgrade": upgrade, **result}
         return {
             "jsonrpc": "2.0", "id": req_id,
             "result": {
