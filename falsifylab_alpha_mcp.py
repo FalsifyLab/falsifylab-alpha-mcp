@@ -23,31 +23,86 @@ Install (end user):
   # }}}
 """
 from __future__ import annotations
+from datetime import datetime, timezone
+import hashlib
 import json
 import os
+from pathlib import Path
 import sys
 import urllib.error
 import urllib.request
 from typing import Any
 
-VERSION = "0.2.2"
+VERSION = "0.3.3"
 API_BASE = os.environ.get("FL_API_BASE", "https://falsifylab.com")
 API_KEY = os.environ.get("FL_API_KEY", "")
 USER_AGENT = f"falsifylab-alpha-mcp/{VERSION}"
+
+# Telemetry POST endpoint — sends Pro-wall-hit events to the FL Worker so
+# they land in /var/log/fl_mcp.jsonl alongside direct /api/* hits. Without
+# this, MCP-stdio path is invisible to operator telemetry. Best-effort:
+# silent on any failure, never blocks a tool call.
+TELEM_URL = os.environ.get("FL_TELEM_URL", f"{API_BASE}/api/_telem")
+TELEM_ENABLED = os.environ.get("FL_TELEM_DISABLE", "").lower() not in ("1", "true", "yes")
+
+
+def _emit_telem(event: str, tool: str = "?", has_key: bool = False) -> None:
+    """Fire-and-forget POST to FL Worker /api/_telem. Never raises."""
+    if not TELEM_ENABLED:
+        return
+    try:
+        key_hash = ""
+        if API_KEY:
+            key_hash = hashlib.sha256(API_KEY.encode()).hexdigest()[:12]
+        body = json.dumps({
+            "event": event,
+            "tool": tool,
+            "has_key": has_key,
+            "key_hash": key_hash,
+            "mcp_version": VERSION,
+        }).encode()
+        req = urllib.request.Request(
+            TELEM_URL, data=body, method="POST",
+            headers={"Content-Type": "application/json",
+                      "User-Agent": USER_AGENT})
+        urllib.request.urlopen(req, timeout=2)
+    except Exception:
+        pass
+
+# Free-tier gating (v0.3.2 — banked from 2026-05-20 conversion-funnel diagnosis):
+# 1,229 weekly PyPI installs + 0 paid conversions. Free tier had no upgrade
+# pressure. Now: 3 free tools, rest are Pro-only with explicit upgrade stub.
+FREE_ALLOWED_TOOLS = {"top_yield_farms", "hl_vault_leaderboard", "macro_tape"}
+FREE_RESULT_CAP = 5  # was 10 — narrow further to surface Pro value sooner
+TOOL_CALL_LOG_PATH = Path(
+    os.environ.get("FL_MCP_TOOL_CALL_LOG", "/var/log/falsifylab/mcp_tool_calls.jsonl")
+)
 
 # Free-tier upgrade nudge — surfaces in every free-tier response so agents
 # can relay the upgrade path to the human. Pro $19/mo unlocks real-time +
 # 100 results + 90-day history; Pro Plus $49/mo adds webhook events.
 UPGRADE_NUDGE_FREE = (
-    "you're on the free tier (24h cached, 10 results/query, 60 req/hr). "
-    "Pro $19/mo: real-time + 100 results + 90-day history. "
+    "free tier (24h cached, 5 results/query, 3 of 13 tools). "
+    "Pro $19/mo: real-time + 100 results + all 13 tools + 90-day history. "
     "Pro Plus $49/mo: real-time + webhooks. "
-    "upgrade → https://falsifylab.com/pro"
+    "upgrade → https://falsifylab.com/pro?ref=tool-nudge"
 )
 UPGRADE_NUDGE_TRUNCATED = (
-    "results truncated to 10 (free-tier limit). "
-    "Pro $19/mo returns up to 100. → https://falsifylab.com/pro"
+    "results truncated to 5 (free-tier limit). "
+    "Pro $19/mo returns up to 100. → https://falsifylab.com/pro?ref=tool-trunc"
 )
+PRO_FEATURE_STUB_BUILDER = lambda tool_name: {
+    "error": "pro_feature",
+    "message": (
+        f"'{tool_name}' is a Pro feature. "
+        f"Free tier exposes: {sorted(FREE_ALLOWED_TOOLS)}. "
+        f"Upgrade $19/mo to unlock all 13 tools including {tool_name}. "
+        f"https://falsifylab.com/pro?ref=tool-gate"
+    ),
+    "upgrade_url": "https://falsifylab.com/pro?ref=tool-gate",
+    "free_tools": sorted(FREE_ALLOWED_TOOLS),
+    "_pro_only_tool": tool_name,
+}
 
 
 # ===== MCP protocol scaffold (JSON-RPC over stdio) =====
@@ -84,6 +139,30 @@ def _api_get(path: str, params: dict | None = None) -> dict:
         return {"error": f"HTTP {e.code}: {body}"}
     except Exception as e:
         return {"error": str(e)[:200]}
+
+
+def _log_tool_call(name: str, args: dict | None, api_key: str) -> None:
+    if os.environ.get("FL_DISABLE_TELEMETRY"):
+        return
+    try:
+        TOOL_CALL_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "ts": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "tool": name,
+            "args_keys": sorted((args or {}).keys())[:5],
+            "has_api_key": bool(api_key),
+            "key_hash": (
+                hashlib.sha256(api_key.encode("utf-8")).hexdigest()[:12]
+                if api_key
+                else None
+            ),
+            "version": VERSION,
+        }
+        with TOOL_CALL_LOG_PATH.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(payload, separators=(",", ":")) + "\n")
+    except Exception:
+        # Telemetry must never break tool calls.
+        pass
 
 
 # ===== Tool definitions =====
@@ -199,12 +278,57 @@ TOOLS = [
         },
     },
     {
+        "name": "earnings_drift_radar",
+        "description": "Post-earnings drift radar for US equities. Surfaces "
+                       "names with outsized post-print drift or high pre-print "
+                       "IV crush probability over the next sessions.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "days_ahead": {"type": "integer", "default": 7},
+                "min_drift_pct": {"type": "number", "default": 3.0},
+                "min_iv_crush_prob": {"type": "number", "default": 0.6},
+                "limit": {"type": "integer", "default": 10},
+            },
+        },
+    },
+    {
+        "name": "token_unlock_radar",
+        "description": "Forward token unlock radar for crypto assets. Flags "
+                       "near-term unlocks by date, size, and circulating-supply "
+                       "impact to identify supply-overhang setups.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "days_ahead": {"type": "integer", "default": 14},
+                "min_unlock_usd": {"type": "number", "default": 1000000},
+                "min_unlock_pct_circ": {"type": "number", "default": 1.0},
+                "limit": {"type": "integer", "default": 10},
+            },
+        },
+    },
+    {
+        "name": "fed_comm_radar",
+        "description": "Fed communication radar. Tracks upcoming Fed speaker "
+                       "events and historical rate-delta sensitivity to flag "
+                       "macro volatility windows within the next N hours.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "hours_ahead": {"type": "integer", "default": 48},
+                "min_rate_delta_bps": {"type": "number", "default": 5.0},
+                "limit": {"type": "integer", "default": 10},
+            },
+        },
+    },
+    {
         "name": "confluence_today",
         "description": "Cross-source confluence: tickers/assets where 2+ "
                        "FalsifyLab signals align in the last 24h. Stacks "
                        "insider Form 4 clusters, material 8-K filings, ETF "
                        "flows, DeFi yields, airdrop activity, HL vault "
-                       "concentration, and Polymarket whale positions. "
+                       "concentration, Polymarket whale positions, earnings "
+                       "drift radar, token unlock radar, and Fed comm radar. "
                        "Higher signal_count = more conviction. The Pro-tier "
                        "differentiator: nobody else stacks these in one call.",
         "inputSchema": {
@@ -213,10 +337,11 @@ TOOLS = [
                 "min_signals": {"type": "integer", "default": 2,
                                   "description": "min # of signals that must agree per asset"},
                 "kind": {"type": "string",
-                          "enum": ["equity", "crypto", "all"],
+                          "enum": ["equity", "crypto", "macro", "all"],
                           "default": "all",
                           "description": "limit to equity (Form 4 + 8-K + ETF) "
-                                         "or crypto (yield + airdrop + HL vault + Polymarket) signals"},
+                                         "crypto (yield + airdrop + HL vault + Polymarket + unlock) "
+                                         "or macro (Fed comm + macro tape) signals"},
                 "limit": {"type": "integer", "default": 10},
             },
         },
@@ -269,6 +394,12 @@ def call_tool(name: str, args: dict) -> dict:
         return _api_get("/api/airdrops", args)
     if name == "polymarket_whale_positions":
         return _api_get("/api/polymarket/whales", args)
+    if name == "earnings_drift_radar":
+        return _api_get("/api/earnings_drift", args)
+    if name == "token_unlock_radar":
+        return _api_get("/api/token_unlocks", args)
+    if name == "fed_comm_radar":
+        return _api_get("/api/fed_comm", args)
     if name == "confluence_today":
         return _api_get("/api/confluence", args)
     if name == "onchain_smart_wallets":
@@ -303,16 +434,44 @@ def handle(req: dict) -> dict | None:
     if method == "tools/call":
         name = params.get("name", "")
         args = params.get("arguments") or {}
+        _log_tool_call(name, args, API_KEY)
+
+        # Pro-only gate: free tier hits a non-free tool → return stub with
+        # explicit upgrade path. Banked from 2026-05-20 funnel diagnosis.
+        if not API_KEY and name not in FREE_ALLOWED_TOOLS:
+            # Known tool but Pro-only
+            known_tools = {t["name"] for t in TOOLS}
+            if name in known_tools:
+                result = PRO_FEATURE_STUB_BUILDER(name)
+                # v0.3.3: emit mcp_wall_hit telem so operator can count
+                # MCP-side Pro-tool wall hits. Best-effort, non-blocking.
+                _emit_telem("mcp_wall_hit", tool=name, has_key=False)
+            else:
+                result = {"error": f"unknown tool: {name}"}
+            return {
+                "jsonrpc": "2.0", "id": req_id,
+                "result": {
+                    "content": [{"type": "text",
+                                  "text": json.dumps(result, indent=2)[:8000]}],
+                },
+            }
+
+        # Free-tier limit cap: narrow result count to FREE_RESULT_CAP regardless
+        # of what user requested. Pro keys pass through.
+        if not API_KEY and isinstance(args, dict):
+            requested_limit = args.get("limit")
+            if requested_limit is None or (
+                isinstance(requested_limit, int) and requested_limit > FREE_RESULT_CAP
+            ):
+                args["limit"] = FREE_RESULT_CAP
+
         result = call_tool(name, args)
+
         # Inject upgrade nudge for free-tier callers (no FL_API_KEY).
-        # Placed at top-of-dict so it survives even if MCP client truncates
-        # the JSON payload at 8000 chars.
+        # Placed at top-of-dict so it survives MCP-client truncation.
         if isinstance(result, dict) and "error" not in result and not API_KEY:
             count = result.get("count")
-            requested = args.get("limit")
-            if isinstance(count, int) and count >= 10 and (
-                requested is None or (isinstance(requested, int) and requested > 10)
-            ):
+            if isinstance(count, int) and count >= FREE_RESULT_CAP:
                 upgrade = UPGRADE_NUDGE_TRUNCATED
             else:
                 upgrade = UPGRADE_NUDGE_FREE

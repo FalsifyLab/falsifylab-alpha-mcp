@@ -12,7 +12,7 @@
 [![MCP Protocol](https://img.shields.io/badge/MCP-2024--11--05-success.svg)](https://modelcontextprotocol.io/)
 [![Glama Score](https://glama.ai/mcp/servers/FalsifyLab/falsifylab-alpha-mcp/badge)](https://glama.ai/mcp/servers/FalsifyLab/falsifylab-alpha-mcp)
 
-**MCP data layer for AI-assisted market research.** 10 live finance tools that drop into Claude Code, Cursor, Cline, Windsurf, or any MCP-compatible client. Free tier requires no signup.
+**MCP data layer for AI-assisted market research.** 13 live finance tools that drop into Claude Code, Cursor, Cline, Windsurf, or any MCP-compatible client. Free tier requires no signup.
 
 > Not a signal service. Not investment advice. Public market data with light enrichment for AI agents. Backtest before acting.
 
@@ -50,9 +50,9 @@ When the user asks your AI agent things like:
 - *"What's in the macro tape right now?"*
 - *"Find Polymarket whales with 60%+ win rate"*
 
-...the agent calls one of 10 tools and grounds its answer in real-time numbers from public-market data — instead of speculating from training-data knowledge.
+...the agent calls one of 13 tools and grounds its answer in real-time numbers from public-market data — instead of speculating from training-data knowledge.
 
-## The 10 tools
+## The 13 tools
 
 | Tool | Returns | Use case |
 |------|---------|----------|
@@ -64,6 +64,9 @@ When the user asks your AI agent things like:
 | `etf_flow_today` | US spot BTC + ETH ETF aggregates | Institutional positioning |
 | `active_airdrop_farms` | DefiLlama yield-gap airdrops | Farms where you're paid to wait |
 | `polymarket_whale_positions` | Top wallets + active positions | Prediction-market copy-trade |
+| `earnings_drift_radar` | Post-earnings drift + IV-crush candidates | Equity event-volatility scanner |
+| `token_unlock_radar` | Forward token unlock schedule + size | Supply-overhang risk radar |
+| `fed_comm_radar` | Fed speaker/event volatility windows | Macro event-risk scanner |
 | `confluence_today` | Cross-source signal alignment | Stacks 2+ signals on same asset |
 | `onchain_smart_wallets` | Live Solana copy-trade bot scores | Production wallet rankings |
 
@@ -181,13 +184,36 @@ The bot fleet receipts (alive + dead, P&L, drawdown) are public at [falsifylab.c
 - **Data sources**: SEC EDGAR (Form 4, 8-K), SoSoValue (ETF flows), DefiLlama (yield), Hyperliquid public API, Polymarket public API, Yahoo Finance (macro)
 - **Privacy**: free-tier key issued by hash(IP+UA), not stored long-term. Request bodies never logged.
 
+## Telemetry
+
+The local stdio server writes minimal per-tool telemetry JSONL rows to:
+
+- `/var/log/falsifylab/mcp_tool_calls.jsonl` (override with `FL_MCP_TOOL_CALL_LOG`)
+
+Each row includes only:
+
+- `ts`, `tool`, `args_keys` (argument names only), `has_api_key`, `key_hash` (sha256 prefix), `version`
+
+Never logged by this telemetry path:
+
+- raw API keys
+- argument values / request bodies
+- IP address
+- email / name / other user identifiers
+
+To disable telemetry completely:
+
+```bash
+export FL_DISABLE_TELEMETRY=1
+```
+
 ## What works, what does not
 
 Honest list. Updated every release.
 
 ### What works today
 
-- All 10 tools return live data inside agent calls under 1s p95.
+- All 13 tools return live data inside agent calls under 1s p95.
 - Free tier has zero signup friction. No API key needed for the cached path.
 - Form 4 insider clusters get refreshed every 15 min on weekdays from SEC EDGAR direct, no 3rd-party reseller in the pipeline.
 - DefiLlama yields are emissions-stripped (headline APY minus reward tokens), so a 200% farm and a 200% farm are not the same number any more.
@@ -261,4 +287,4 @@ MIT. See [LICENSE](LICENSE).
 
 ---
 
-*FalsifyLab Alpha v0.1.5 · Built for AI coding agents · Free tier no signup · falsifylab.com*
+*FalsifyLab Alpha v0.3.3 · Built for AI coding agents · Free tier no signup · falsifylab.com*
