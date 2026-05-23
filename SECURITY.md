@@ -39,6 +39,19 @@ Please do NOT open a public GitHub issue. We acknowledge within 48 hours.
 
 If sensitive, encrypt with our PGP key at https://falsifylab.com/security.asc
 
+```
+Algorithm:   Ed25519 (primary) + cv25519 (encryption subkey)
+Generated:   2026-05-23
+Expires:     2028-05-22
+Fingerprint: 232B 6912 383F 3C0D F516  BE9A 89DD 9D18 1624 71FD
+User ID:     FalsifyLab Security <security@falsifylab.com>
+```
+
+Import:
+```bash
+curl https://falsifylab.com/security.asc | gpg --import
+```
+
 ## Past disclosures
 
 None yet (project launched 2026-05-13).
