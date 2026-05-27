@@ -2,7 +2,7 @@
 
 <!-- mcp-name: io.github.FalsifyLab/falsifylab-alpha-mcp -->
 
-![FalsifyLab Alpha: 10 live finance MCP tools for AI coding agents](assets/hero.png)
+![FalsifyLab Alpha: 13 live finance MCP tools for AI coding agents](assets/hero.png)
 
 [![smithery badge](https://smithery.ai/badge/falsifylab/falsifylab-alpha-mcp)](https://smithery.ai/servers/falsifylab/falsifylab-alpha-mcp)
 [![PyPI](https://img.shields.io/pypi/v/falsifylab-alpha-mcp.svg)](https://pypi.org/project/falsifylab-alpha-mcp/)

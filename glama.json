@@ -1,0 +1,13 @@
+{
+  "name": "falsifylab-alpha-mcp",
+  "description": "13 live finance MCP tools for AI coding agents. DeFi yields (emissions-stripped), Hyperliquid vaults, SEC Form 4 insider clusters, 8-K material filings, macro tape, ETF flows, airdrop farms, Polymarket whales, onchain smart wallets, confluence cross-source signals, earnings drift radar, token unlock radar, Fed comm radar. Free tier no signup. Pro $19/mo.",
+  "category": "Finance & Fintech",
+  "tags": ["finance", "defi", "crypto", "sec", "mcp", "ai-agent", "trading"],
+  "homepage": "https://falsifylab.com",
+  "pricing": "freemium",
+  "author": {
+    "name": "FalsifyLab",
+    "url": "https://falsifylab.com",
+    "github": "FalsifyLab"
+  }
+}
